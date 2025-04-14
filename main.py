@@ -24,7 +24,7 @@ class PostOut(PostCreate):
     date_created : str
 
     class Config:
-        orm_mode = True
+        from_attributes = True 
 
 @app.get("/posts", response_model=List[PostOut])
 def add_posts(db: Session = Depends(get_db)):
