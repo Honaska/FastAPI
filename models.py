@@ -7,3 +7,4 @@ class Post(Base):
     id = Column(Integer, primary_key = True, index=True)
     title = Column(String, index= True, nullable=False)
     content = Column(String, index= True, nullable= False)
+    date_created = Column(Datetime, default = datetime.utcnow)
