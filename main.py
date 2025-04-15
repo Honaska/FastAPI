@@ -1,43 +1,36 @@
-import { getTasks, createTask, updateTask, deleteTask } from './api';
-import { useEffect, useState } from 'react';
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List
 
-const [tasks, setTasks] = useState([]);
+app = FastAPI()
 
-// Load tasks from backend
-useEffect(() => {
-  fetchTasks();
-}, []);
+tasks_db = []
 
-const fetchTasks = () => {
-  getTasks().then((res) => {
-    setTasks(res.data);
-  }).catch((err) => console.error(err));
-};
 
-const addTask = () => {
-  if (newTask.title.trim() === "") return;
-  createTask(newTask).then(() => {
-    setNewTask({ title: "", details: "" });
-    setShowForm(false);
-    fetchTasks();
-  });
-};
+class Task(BaseModel):
+    title: str
+    details: str
 
-const handleUpdateTask = () => {
-  if (newTask.title.trim() === "") return;
-  const taskId = tasks[selectedTaskIndex].id;
-  updateTask(taskId, newTask).then(() => {
-    setNewTask({ title: "", details: "" });
-    setIsEditing(false);
-    setSelectedTaskIndex(null);
-    fetchTasks();
-  });
-};
 
-const removeTask = (index) => {
-  const taskId = tasks[index].id;
-  deleteTask(taskId).then(() => {
-    setSelectedTaskIndex(null);
-    fetchTasks();
-  });
-};
+@app.get("/tasks", response_model=List[Task])
+def get_tasks():
+    return tasks_db
+
+@app.post("/tasks", response_model=Task)
+def create_task(task: Task):
+    tasks_db.append(task)
+    return task
+
+@app.put("/tasks/{task_id}", response_model=Task)
+def update_task(task_id: int, task: Task):
+    if task_id >= len(tasks_db):
+        return {"error": "Task not found"}
+    tasks_db[task_id] = task
+    return task
+
+@app.delete("/tasks/{task_id}", response_model=Task)
+def delete_task(task_id: int):
+    if task_id >= len(tasks_db):
+        return {"error": "Task not found"}
+    deleted_task = tasks_db.pop(task_id)
+    return deleted_task
