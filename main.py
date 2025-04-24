@@ -70,5 +70,6 @@ def get_task(task_id: int, db: Session = Depends(get_db)):
 
 @app.post("/tasks", response_model=TaskOut)
 def create_task(task: Task, db: Session = Depends(get_db)):
-    db_task = TaskModel(title_db_task = TaskModel(title=task.title, details=task.details)
+    db_task = TaskModel(title=task.title, details=task.details)
+
 
